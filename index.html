@@ -56,17 +56,74 @@
       padding: 0 24px 24px;
     }
 
-    .progress-track {
-      height: 4px;
-      background: #e8eaf0;
-      border-radius: 99px;
-      overflow: hidden;
+    .progress-steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
     }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #3d5af1, #5b73f5);
-      border-radius: 99px;
-      transition: width .5s cubic-bezier(.4,0,.2,1);
+    .progress-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+      z-index: 1;
+    }
+    .progress-step-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #e8eaf0;
+      border: 2px solid #e8eaf0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .3s;
+      font-size: 11px;
+      font-weight: 700;
+      color: #9aa0b4;
+    }
+    .progress-step-dot svg {
+      width: 13px;
+      height: 13px;
+      display: none;
+    }
+    .progress-step-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #9aa0b4;
+      letter-spacing: .3px;
+      transition: color .3s;
+      white-space: nowrap;
+    }
+    .progress-step.active .progress-step-dot {
+      background: #3d5af1;
+      border-color: #3d5af1;
+      color: #fff;
+    }
+    .progress-step.active .progress-step-label {
+      color: #3d5af1;
+    }
+    .progress-step.done .progress-step-dot {
+      background: #00b37e;
+      border-color: #00b37e;
+      color: #fff;
+    }
+    .progress-step.done .progress-step-dot span { display: none; }
+    .progress-step.done .progress-step-dot svg { display: block; }
+    .progress-step.done .progress-step-label {
+      color: #00b37e;
+    }
+    .progress-connector {
+      flex: 1;
+      height: 2px;
+      background: #e8eaf0;
+      margin-bottom: 22px;
+      transition: background .3s;
+      position: relative;
+    }
+    .progress-connector.done {
+      background: #00b37e;
     }
 
     /* ── Content ── */
@@ -426,8 +483,30 @@
 
   <!-- ── Progress ── -->
   <div class="progress-wrap" id="progress-section">
-<div class="progress-track">
-      <div class="progress-fill" id="progress-fill" style="width: 16%"></div>
+    <div class="progress-steps">
+      <div class="progress-step active" id="prog-1">
+        <div class="progress-step-dot">
+          <span>1</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <div class="progress-step-label">Front</div>
+      </div>
+      <div class="progress-connector" id="conn-1"></div>
+      <div class="progress-step" id="prog-2">
+        <div class="progress-step-dot">
+          <span>2</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <div class="progress-step-label">Back</div>
+      </div>
+      <div class="progress-connector" id="conn-2"></div>
+      <div class="progress-step" id="prog-3">
+        <div class="progress-step-dot">
+          <span>3</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <div class="progress-step-label">Review</div>
+      </div>
     </div>
   </div>
 
@@ -612,10 +691,8 @@
   };
 
   const steps     = [null, document.getElementById('step-1'), document.getElementById('step-2'), document.getElementById('step-3')];
-  const fillEl    = document.getElementById('progress-fill');
   const btnNext   = document.getElementById('btn-next');
   const btnBack   = document.getElementById('btn-back');
-  const FILL = ['16%', '50%', '83%', '100%'];
 
   function goTo(n) {
     steps[state.step].classList.remove('active');
@@ -626,7 +703,16 @@
 
   function updateUI() {
     const s = state.step;
-    fillEl.style.width = FILL[s];
+
+    [1, 2, 3].forEach(i => {
+      const el = document.getElementById('prog-' + i);
+      el.classList.remove('active', 'done');
+      if (i < s) el.classList.add('done');
+      if (i === s) el.classList.add('active');
+    });
+    [1, 2].forEach(i => {
+      document.getElementById('conn-' + i).classList.toggle('done', i < s);
+    });
 
     btnBack.style.visibility = s === 1 ? 'hidden' : 'visible';
 
@@ -760,7 +846,6 @@
       document.getElementById('progress-section').style.display = 'none';
       document.getElementById('cta-wrap').style.display = 'none';
       document.getElementById('submitted-screen').classList.add('active');
-      fillEl.style.width = '100%';
       btnBack.style.visibility = 'hidden';
     }
   });
