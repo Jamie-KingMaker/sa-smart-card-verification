@@ -56,74 +56,23 @@
       padding: 0 24px 24px;
     }
 
-    .progress-steps {
+    .progress-track {
       display: flex;
-      align-items: center;
-      gap: 0;
+      gap: 4px;
     }
-    .progress-step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      position: relative;
-      z-index: 1;
-    }
-    .progress-step-dot {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: #e8eaf0;
-      border: 2px solid #e8eaf0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all .3s;
-      font-size: 11px;
-      font-weight: 700;
-      color: #9aa0b4;
-    }
-    .progress-step-dot svg {
-      width: 13px;
-      height: 13px;
-      display: none;
-    }
-    .progress-step-label {
-      font-size: 10px;
-      font-weight: 600;
-      color: #9aa0b4;
-      letter-spacing: .3px;
-      transition: color .3s;
-      white-space: nowrap;
-    }
-    .progress-step.active .progress-step-dot {
-      background: #3d5af1;
-      border-color: #3d5af1;
-      color: #fff;
-    }
-    .progress-step.active .progress-step-label {
-      color: #3d5af1;
-    }
-    .progress-step.done .progress-step-dot {
-      background: #00b37e;
-      border-color: #00b37e;
-      color: #fff;
-    }
-    .progress-step.done .progress-step-dot span { display: none; }
-    .progress-step.done .progress-step-dot svg { display: block; }
-    .progress-step.done .progress-step-label {
-      color: #00b37e;
-    }
-    .progress-connector {
+    .progress-segment {
       flex: 1;
-      height: 2px;
+      height: 4px;
       background: #e8eaf0;
-      margin-bottom: 22px;
-      transition: background .3s;
-      position: relative;
+      border-radius: 99px;
+      overflow: hidden;
     }
-    .progress-connector.done {
-      background: #00b37e;
+    .progress-segment-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #3d5af1, #5b73f5);
+      border-radius: 99px;
+      transition: width .4s cubic-bezier(.4,0,.2,1);
     }
 
     /* ── Content ── */
@@ -483,30 +432,10 @@
 
   <!-- ── Progress ── -->
   <div class="progress-wrap" id="progress-section">
-    <div class="progress-steps">
-      <div class="progress-step active" id="prog-1">
-        <div class="progress-step-dot">
-          <span>1</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
-        </div>
-        <div class="progress-step-label">Front</div>
-      </div>
-      <div class="progress-connector" id="conn-1"></div>
-      <div class="progress-step" id="prog-2">
-        <div class="progress-step-dot">
-          <span>2</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
-        </div>
-        <div class="progress-step-label">Back</div>
-      </div>
-      <div class="progress-connector" id="conn-2"></div>
-      <div class="progress-step" id="prog-3">
-        <div class="progress-step-dot">
-          <span>3</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
-        </div>
-        <div class="progress-step-label">Review</div>
-      </div>
+    <div class="progress-track">
+      <div class="progress-segment"><div class="progress-segment-fill" id="seg-1"></div></div>
+      <div class="progress-segment"><div class="progress-segment-fill" id="seg-2"></div></div>
+      <div class="progress-segment"><div class="progress-segment-fill" id="seg-3"></div></div>
     </div>
   </div>
 
@@ -515,7 +444,7 @@
 
     <!-- Step 1: Front -->
     <div class="step active" id="step-1">
-      <span class="step-badge">STEP 1 OF 2</span>
+      <span class="step-badge">STEP 1 OF 3</span>
       <div class="step-title">Upload your SA Smart Card</div>
       <div class="step-subtitle">Take a photo or upload an image of the <strong>front side</strong> of your SA Smart Card.</div>
 
@@ -572,7 +501,7 @@
 
     <!-- Step 2: Back -->
     <div class="step" id="step-2">
-      <span class="step-badge">STEP 2 OF 2</span>
+      <span class="step-badge">STEP 2 OF 3</span>
       <div class="step-title">Back of your SA Smart Card</div>
       <div class="step-subtitle">Flip the card over and take a photo or upload an image of the <strong>back side</strong>.</div>
 
@@ -629,6 +558,7 @@
 
     <!-- Step 3: Review -->
     <div class="step" id="step-3">
+      <span class="step-badge">STEP 3 OF 3</span>
       <div class="step-title">Review your uploads</div>
       <div class="step-subtitle" style="margin-bottom: 20px;">Check both images look clear before submitting. You can retake either one.</div>
 
@@ -705,13 +635,7 @@
     const s = state.step;
 
     [1, 2, 3].forEach(i => {
-      const el = document.getElementById('prog-' + i);
-      el.classList.remove('active', 'done');
-      if (i < s) el.classList.add('done');
-      if (i === s) el.classList.add('active');
-    });
-    [1, 2].forEach(i => {
-      document.getElementById('conn-' + i).classList.toggle('done', i < s);
+      document.getElementById('seg-' + i).style.width = i <= s ? '100%' : '0%';
     });
 
     btnBack.style.visibility = s === 1 ? 'hidden' : 'visible';
