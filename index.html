@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proof of Identity</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f4f5f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .phone-frame {
+      width: 390px;
+      min-height: 844px;
+      background: #fff;
+      border-radius: 44px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.18);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px 12px;
+    }
+    .header button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #1a1f36;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      transition: background .15s;
+    }
+    .header button:hover { background: #f0f1f4; }
+    .header svg { width: 20px; height: 20px; }
+
+    /* ── Progress bar ── */
+    .progress-wrap {
+      padding: 0 24px 24px;
+    }
+
+    .progress-track {
+      height: 4px;
+      background: #e8eaf0;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3d5af1, #5b73f5);
+      border-radius: 99px;
+      transition: width .5s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ── Content ── */
+    .content {
+      flex: 1;
+      padding: 0 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* step panels */
+    .step { display: none; flex-direction: column; flex: 1; }
+    .step.active { display: flex; }
+
+    /* ── Step illustration ── */
+    .step-badge {
+      display: inline-block;
+      align-self: flex-start;
+      background: rgba(61,90,241,.12);
+      color: #3d5af1;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      letter-spacing: .5px;
+    }
+
+    .step-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1f36;
+      margin-bottom: 6px;
+    }
+    .step-subtitle {
+      font-size: 14px;
+      color: #6b7492;
+      line-height: 1.5;
+      margin-bottom: 28px;
+    }
+
+    /* ── Card diagram ── */
+    .card-diagram {
+      width: 100%;
+      border: 2px dashed #c8cde8;
+      border-radius: 16px;
+      background: #f8f9ff;
+      padding: 16px;
+      margin-bottom: 20px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-diagram img {
+      width: 75%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    }
+    .card-diagram-overlay {
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-diagram-overlay span {
+      font-size: 11px;
+      font-weight: 700;
+      color: #6b7492;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      background: rgba(255,255,255,.92);
+      padding: 4px 12px;
+      border-radius: 99px;
+      border: 1.5px solid #e8eaf0;
+    }
+
+    /* ── Upload zone ── */
+    .upload-zone {
+      border: 2px dashed #c8cde8;
+      border-radius: 16px;
+      background: #f8f9ff;
+      padding: 36px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      position: relative;
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: #3d5af1;
+      background: #eef0fc;
+    }
+    .upload-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .upload-icon-wrap {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: #e3e7fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .upload-icon-wrap svg { width: 28px; height: 28px; color: #3d5af1; }
+
+    .upload-zone-text {
+      text-align: center;
+    }
+    .upload-zone-text strong {
+      display: block;
+      font-size: 15px;
+      color: #1a1f36;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .upload-zone-text span {
+      font-size: 13px;
+      color: #9aa0b4;
+    }
+    .upload-zone-text a {
+      color: #3d5af1;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* ── Preview image ── */
+    .preview-wrap {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      display: none;
+    }
+    .preview-wrap img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+    }
+    .preview-remove {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(26,31,54,.7);
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    .preview-remove svg { width: 14px; height: 14px; }
+
+    /* ── Tips ── */
+    .tips {
+      background: #f8f9ff;
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 20px;
+    }
+    .tips-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #6b7492;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .tip {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .tip:last-child { margin-bottom: 0; }
+    .tip-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #e3e7fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+    .tip-icon svg { width: 10px; height: 10px; color: #3d5af1; }
+    .tip p { font-size: 13px; color: #6b7492; line-height: 1.4; }
+
+    /* ── Success state ── */
+    .success-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #00b37e;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .success-icon svg { width: 11px; height: 11px; color: #fff; }
+
+    /* ── Review step ── */
+    .review-card {
+      border: 1.5px solid #e8eaf0;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+    .review-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: #f8f9ff;
+      border-bottom: 1.5px solid #e8eaf0;
+    }
+    .review-card-header span {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1f36;
+    }
+    .review-card-header button {
+      background: none;
+      border: none;
+      font-size: 13px;
+      color: #3d5af1;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .review-card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      display: block;
+    }
+    .review-placeholder {
+      width: 100%;
+      height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #c8cde8;
+      font-size: 13px;
+      background: #f8f9ff;
+    }
+
+    /* ── Bottom CTA ── */
+    .cta-wrap {
+      padding: 20px 24px 32px;
+    }
+    .btn-primary {
+      width: 100%;
+      padding: 17px;
+      background: linear-gradient(135deg, #3d5af1, #5b73f5);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      cursor: pointer;
+      transition: opacity .2s, transform .1s;
+    }
+    .btn-primary:hover   { opacity: .92; }
+    .btn-primary:active  { transform: scale(.98); }
+    .btn-primary:disabled {
+      background: #c8cde8;
+      cursor: not-allowed;
+      opacity: 1;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 14px;
+      background: none;
+      color: #6b7492;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      border-radius: 14px;
+      transition: background .15s;
+    }
+    .btn-secondary:hover { background: #f0f1f4; }
+
+    /* ── Submitted screen ── */
+    #submitted-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      padding: 24px;
+      text-align: center;
+      gap: 16px;
+    }
+    #submitted-screen.active { display: flex; }
+    .submitted-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00b37e, #00d494);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .submitted-icon svg { width: 40px; height: 40px; color: #fff; }
+    .submitted-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1f36;
+    }
+    .submitted-body {
+      font-size: 14px;
+      color: #6b7492;
+      line-height: 1.6;
+      max-width: 280px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="phone-frame">
+
+  <!-- ── Header ── -->
+  <div class="header">
+    <button id="btn-back" aria-label="Go back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+    </button>
+    <button id="btn-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- ── Progress ── -->
+  <div class="progress-wrap" id="progress-section">
+<div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width: 16%"></div>
+    </div>
+  </div>
+
+  <!-- ── Steps ── -->
+  <div class="content" id="steps-content">
+
+    <!-- Step 1: Front -->
+    <div class="step active" id="step-1">
+      <span class="step-badge">STEP 1 OF 2</span>
+      <div class="step-title">Upload your SA Smart Card</div>
+      <div class="step-subtitle">Take a photo or upload an image of the <strong>front side</strong> of your SA Smart Card.</div>
+
+      <div class="card-diagram">
+        <img src="images/ZA_Smart_ID_Front.png" alt="Example SA Smart Card front" />
+        <div class="card-diagram-overlay"><span>Front Example</span></div>
+      </div>
+
+      <div class="upload-zone" id="zone-front" role="button" tabindex="0">
+        <input type="file" id="file-front" accept="image/png,image/jpeg,image/gif" aria-label="Upload front of card" />
+        <div class="upload-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </div>
+        <div class="upload-zone-text">
+          <strong>Drag &amp; drop or <a>browse files</a></strong>
+          <span>PNG, JPG, GIF up to 3 MB</span>
+        </div>
+      </div>
+
+      <div class="preview-wrap" id="preview-front-wrap">
+        <img id="preview-front" alt="Front of card preview" />
+        <button class="preview-remove" id="remove-front" aria-label="Remove image">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="tips">
+        <div class="tips-title">Quick tips</div>
+        <div class="tip">
+          <div class="tip-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <p>Lay your card flat on a dark, non-reflective surface</p>
+        </div>
+        <div class="tip">
+          <div class="tip-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <p>Ensure the card isn't expired</p>
+        </div>
+        <div class="tip">
+          <div class="tip-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <p>Avoid glare, shadows, and blurry images</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Back -->
+    <div class="step" id="step-2">
+      <span class="step-badge">STEP 2 OF 2</span>
+      <div class="step-title">Back of your SA Smart Card</div>
+      <div class="step-subtitle">Flip the card over and take a photo or upload an image of the <strong>back side</strong>.</div>
+
+      <div class="card-diagram">
+        <img src="images/ZA_Smart_ID_Reverse.png" alt="Example SA Smart Card back" />
+        <div class="card-diagram-overlay"><span>Example</span></div>
+      </div>
+
+      <div class="upload-zone" id="zone-back" role="button" tabindex="0">
+        <input type="file" id="file-back" accept="image/png,image/jpeg,image/gif" aria-label="Upload back of card" />
+        <div class="upload-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </div>
+        <div class="upload-zone-text">
+          <strong>Drag &amp; drop or <a>browse files</a></strong>
+          <span>PNG, JPG, GIF up to 3 MB</span>
+        </div>
+      </div>
+
+      <div class="preview-wrap" id="preview-back-wrap">
+        <img id="preview-back" alt="Back of card preview" />
+        <button class="preview-remove" id="remove-back" aria-label="Remove image">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="tips">
+        <div class="tips-title">Quick tips</div>
+        <div class="tip">
+          <div class="tip-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <p>Same surface, just flipped over</p>
+        </div>
+        <div class="tip">
+          <div class="tip-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <p>Barcode or magnetic strip should be fully visible</p>
+        </div>
+        <div class="tip">
+          <div class="tip-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <p>No fingers covering any part of the card</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Review -->
+    <div class="step" id="step-3">
+      <div class="step-title">Review your uploads</div>
+      <div class="step-subtitle" style="margin-bottom: 20px;">Check both images look clear before submitting. You can retake either one.</div>
+
+      <div class="review-card">
+        <div class="review-card-header">
+          <span>Front of card
+            <span class="success-icon" id="front-check">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+            </span>
+          </span>
+          <button id="retake-front">Retake</button>
+        </div>
+        <img id="review-front-img" alt="Front of card" style="display:none" />
+        <div class="review-placeholder" id="review-front-placeholder">No image uploaded</div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-card-header">
+          <span>Back of card
+            <span class="success-icon" id="back-check">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+            </span>
+          </span>
+          <button id="retake-back">Retake</button>
+        </div>
+        <img id="review-back-img" alt="Back of card" style="display:none" />
+        <div class="review-placeholder" id="review-back-placeholder">No image uploaded</div>
+      </div>
+
+      <p style="font-size:12px; color:#9aa0b4; text-align:center; margin-top:4px;">
+        Your documents are encrypted and processed securely.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- ── Submitted screen ── -->
+  <div id="submitted-screen">
+    <div class="submitted-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 13l4 4L19 7"/>
+      </svg>
+    </div>
+    <div class="submitted-title">Documents submitted!</div>
+    <div class="submitted-body">We'll verify your SA Smart Card within 1–2 business days and notify you by email.</div>
+  </div>
+
+  <!-- ── CTA ── -->
+  <div class="cta-wrap" id="cta-wrap">
+    <button class="btn-primary" id="btn-next" disabled>Continue</button>
+  </div>
+
+</div>
+
+<script>
+  const state = {
+    step: 1,
+    frontSrc: null,
+    backSrc: null,
+  };
+
+  const steps     = [null, document.getElementById('step-1'), document.getElementById('step-2'), document.getElementById('step-3')];
+  const fillEl    = document.getElementById('progress-fill');
+  const btnNext   = document.getElementById('btn-next');
+  const btnBack   = document.getElementById('btn-back');
+  const FILL = ['16%', '50%', '83%', '100%'];
+
+  function goTo(n) {
+    steps[state.step].classList.remove('active');
+    state.step = n;
+    steps[state.step].classList.add('active');
+    updateUI();
+  }
+
+  function updateUI() {
+    const s = state.step;
+    fillEl.style.width = FILL[s];
+
+    btnBack.style.visibility = s === 1 ? 'hidden' : 'visible';
+
+    if (s === 1) {
+      btnNext.textContent = 'Continue';
+      btnNext.disabled    = !state.frontSrc;
+    } else if (s === 2) {
+      btnNext.textContent = 'Continue';
+      btnNext.disabled    = !state.backSrc;
+    } else {
+      btnNext.textContent = 'Submit documents';
+      btnNext.disabled    = !(state.frontSrc && state.backSrc);
+      // populate review
+      populateReview();
+    }
+  }
+
+  function populateReview() {
+    const fi = document.getElementById('review-front-img');
+    const bi = document.getElementById('review-back-img');
+    const fp = document.getElementById('review-front-placeholder');
+    const bp = document.getElementById('review-back-placeholder');
+
+    if (state.frontSrc) {
+      fi.src = state.frontSrc; fi.style.display = 'block'; fp.style.display = 'none';
+      document.getElementById('front-check').style.display = 'inline-flex';
+    } else {
+      fi.style.display = 'none'; fp.style.display = 'flex';
+      document.getElementById('front-check').style.display = 'none';
+    }
+
+    if (state.backSrc) {
+      bi.src = state.backSrc; bi.style.display = 'block'; bp.style.display = 'none';
+      document.getElementById('back-check').style.display = 'inline-flex';
+    } else {
+      bi.style.display = 'none'; bp.style.display = 'flex';
+      document.getElementById('back-check').style.display = 'none';
+    }
+  }
+
+  function handleFile(file, side) {
+    if (!file) return;
+    if (file.size > 3 * 1024 * 1024) { alert('File must be under 3 MB.'); return; }
+    const reader = new FileReader();
+    reader.onload = e => {
+      const src = e.target.result;
+      if (side === 'front') {
+        state.frontSrc = src;
+        document.getElementById('preview-front').src = src;
+        document.getElementById('zone-front').style.display = 'none';
+        document.getElementById('preview-front-wrap').style.display = 'block';
+      } else {
+        state.backSrc = src;
+        document.getElementById('preview-back').src = src;
+        document.getElementById('zone-back').style.display = 'none';
+        document.getElementById('preview-back-wrap').style.display = 'block';
+      }
+      updateUI();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearSide(side) {
+    if (side === 'front') {
+      state.frontSrc = null;
+      document.getElementById('file-front').value = '';
+      document.getElementById('zone-front').style.display = 'flex';
+      document.getElementById('preview-front-wrap').style.display = 'none';
+    } else {
+      state.backSrc = null;
+      document.getElementById('file-back').value = '';
+      document.getElementById('zone-back').style.display = 'flex';
+      document.getElementById('preview-back-wrap').style.display = 'none';
+    }
+    updateUI();
+  }
+
+  // 🧪 TEST MODE — intercept clicks and auto-load dummy images
+  function loadDummy(side) {
+    const src = side === 'front'
+      ? 'images/ZA_Smart_ID_Front.png'
+      : 'images/ZA_Smart_ID_Reverse.png';
+    if (side === 'front') {
+      state.frontSrc = src;
+      document.getElementById('preview-front').src = src;
+      document.getElementById('zone-front').style.display = 'none';
+      document.getElementById('preview-front-wrap').style.display = 'block';
+    } else {
+      state.backSrc = src;
+      document.getElementById('preview-back').src = src;
+      document.getElementById('zone-back').style.display = 'none';
+      document.getElementById('preview-back-wrap').style.display = 'block';
+    }
+    updateUI();
+  }
+
+  document.getElementById('zone-front').addEventListener('click', e => { e.preventDefault(); loadDummy('front'); });
+  document.getElementById('zone-back').addEventListener('click',  e => { e.preventDefault(); loadDummy('back'); });
+
+  // File inputs (kept as fallback)
+  document.getElementById('file-front').addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0], 'front'); });
+  document.getElementById('file-back').addEventListener('change',  e => { if (e.target.files[0]) handleFile(e.target.files[0], 'back'); });
+
+  // Remove previews
+  document.getElementById('remove-front').addEventListener('click', () => clearSide('front'));
+  document.getElementById('remove-back').addEventListener('click',  () => clearSide('back'));
+
+  // Retake from review screen
+  document.getElementById('retake-front').addEventListener('click', () => { clearSide('front'); goTo(1); });
+  document.getElementById('retake-back').addEventListener('click',  () => { clearSide('back');  goTo(2); });
+
+  // Drag and drop
+  ['zone-front', 'zone-back'].forEach(id => {
+    const zone = document.getElementById(id);
+    const side = id.includes('front') ? 'front' : 'back';
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault(); zone.classList.remove('drag-over');
+      handleFile(e.dataTransfer.files[0], side);
+    });
+  });
+
+  // Navigation
+  btnNext.addEventListener('click', () => {
+    if (state.step < 3) {
+      goTo(state.step + 1);
+    } else {
+      // Submit
+      document.getElementById('steps-content').style.display = 'none';
+      document.getElementById('progress-section').style.display = 'none';
+      document.getElementById('cta-wrap').style.display = 'none';
+      document.getElementById('submitted-screen').classList.add('active');
+      fillEl.style.width = '100%';
+      btnBack.style.visibility = 'hidden';
+    }
+  });
+
+  btnBack.addEventListener('click', () => { if (state.step > 1) goTo(state.step - 1); });
+
+  updateUI();
+</script>
+</body>
+</html>
