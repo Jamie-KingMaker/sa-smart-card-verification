@@ -6,26 +6,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Proof of Identity</title>
   <style>
-    /* ── Design system tokens (BetKing) ── */
+    /* ── Design system tokens (SuperSportBet light) ── */
     :root {
-      --primary:        #001041;
-      --primary-light:  #333f67;
-      --primary-dark:   #000b2d;
-      --secondary:      #255dbd;
-      --secondary-light:#507dca;
-      --accent:         #FFC400;
-      --teal:           #1AFFFF;
-      --teal-dark:      #12b2b2;
-      --success:        #4CAF50;
-      --error:          #D32F2F;
+      --primary:        #040b67;
+      --primary-light:  #050e80;
+      --primary-dark:   #03084f;
+      --secondary:      #0715cc;
+      --secondary-light:#0819f2;
+      --secondary-dark: #0611a3;
+      --accent:         #f1c72f;
+      --cta:            #db1b13;
+      --cta-dark:       #99120d;
+      --success:        #36b37e;
+      --error:          #cd635f;
       --text-primary:   rgba(0,12,45,0.87);
       --text-secondary: rgba(0,12,45,0.6);
       --text-disabled:  rgba(0,12,45,0.38);
-      --divider:        rgba(37,93,189,0.18);
-      --bg-default:     #f6f9fc;
+      --divider:        rgba(17,31,163,0.12);
+      --outline:        rgba(17,31,163,0.23);
+      --bg-default:     #f5f7fa;
       --bg-paper:       #ffffff;
-      --bg-tint:        #E3F1FD;
-      --bg-tint-hover:  #CFE7FC;
+      --bg-tint:        #ecedf8;
+      --bg-tint-hover:  #e1e3f9;
       --shadow-default: 0px 1px 3px rgba(0,16,65,.10), 0px 1px 2px -1px rgba(0,16,65,.10);
       --shadow-md:      0px 4px 6px -1px rgba(0,16,65,.10), 0px 2px 4px -2px rgba(0,16,65,.10);
       --radius-sm:      6px;
@@ -204,7 +206,7 @@
       position: relative;
     }
     .upload-zone:hover, .upload-zone.drag-over {
-      border-color: var(--secondary);
+      border-color: var(--cta);
       background: var(--bg-tint-hover);
     }
     .upload-zone input[type="file"] {
@@ -383,8 +385,8 @@
     .btn-primary {
       width: 100%;
       padding: 15px;
-      background: var(--teal);
-      color: var(--primary);
+      background: var(--cta);
+      color: #ffffff;
       border: none;
       border-radius: var(--radius-full);
       font-size: 14px;
@@ -393,12 +395,12 @@
       text-transform: uppercase;
       cursor: pointer;
       transition: background .2s, transform .1s;
-      box-shadow: 0 4px 16px rgba(26,255,255,.35);
+      box-shadow: 0 4px 16px rgba(219,27,19,.35);
     }
-    .btn-primary:hover   { background: var(--teal-dark); color: #fff; }
-    .btn-primary:active  { transform: scale(.98); background: var(--teal-dark); }
+    .btn-primary:hover   { background: var(--cta-dark); }
+    .btn-primary:active  { transform: scale(.98); background: var(--cta-dark); }
     .btn-primary:disabled {
-      background: rgba(0,16,65,.18);
+      background: rgba(4,11,103,.18);
       box-shadow: none;
       cursor: not-allowed;
       color: rgba(255,255,255,.45);
@@ -507,7 +509,7 @@
           </svg>
         </div>
         <div class="upload-zone-text">
-          <strong>Upload photo or <a>Take photo</a></strong>
+          <strong>Upload or <a>Take Photo</a></strong>
           <span>PNG, JPG, GIF up to 3 MB</span>
         </div>
       </div>
@@ -564,7 +566,7 @@
           </svg>
         </div>
         <div class="upload-zone-text">
-          <strong>Upload photo or <a>Take photo</a></strong>
+          <strong>Upload or <a>Take Photo</a></strong>
           <span>PNG, JPG, GIF up to 3 MB</span>
         </div>
       </div>
